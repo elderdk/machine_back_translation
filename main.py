@@ -1,19 +1,29 @@
-from google.cloud import translate
-from decouple import config
+from translator import trans
+from lang_handler import check_lang
 
-project_id = config("PROJECT_ID")
-assert project_id
-parent = f"projects/{project_id}"
-client = translate.TranslationServiceClient()
 
-sample_text = "Hello world!"
-target_language_code = "tr"
+def back_translate(text: str, slang: str, tlang: str) -> dict:
 
-response = client.translate_text(
-    contents=[sample_text],
-    target_language_code=target_language_code,
-    parent=parent,
-)
+    check_result = check_lang(slang, tlang)
 
-for translation in response.translations:
-    print(translation.translated_text)
+    if not check_result["okay"]:
+        return {"error": check_result["message"]}
+
+    tr = trans(text, slang, tlang)
+    back_tr = trans(tr, tlang, slang)
+
+    return {
+        "original text": text,
+        "original_translation": tr,
+        "back_translation": back_tr,
+    }
+
+
+if __name__ == "__main__":
+    resp = back_translate("번역할 텍스트", slang="ko", tlang="en")
+
+    if resp["error"]:
+        print(resp["error"])
+    else:
+        print(resp["original_translation"])
+        print(resp["back_translation"])

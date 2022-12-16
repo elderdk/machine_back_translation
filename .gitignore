@@ -130,3 +130,6 @@ dmypy.json
 
 # Google API layer-creation test
 /python
+
+# just stuff
+.vscode
